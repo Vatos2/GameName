@@ -1,5 +1,5 @@
-Team Name
-Project Name
+The Best Programmers
+GameName
 
 Project Description
 - Functional Requirements
