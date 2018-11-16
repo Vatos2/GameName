@@ -1,0 +1,75 @@
+370 Project
+“Stranded”
+
+ - Branching Choices
+ - Multiple Endings
+ - Lotsa RNG
+ - Exploration Based
+ 
+Menu:
+>> New Game
+>> Sound?
+
+Player As an Object:
+	Inventory
+	Health
+	Hunger
+	CurrentLocation
+
+Map and Location Tracking:
+  >> 2D Array
+  >> Multiple Symbols
+    Symbol for Player Position
+    Symbol for Permanently Impassable Terrain
+    Temporarily Impassable Terrain
+    Open Routes(Explorable Area)
+
+  Unexplored Areas will be ?, once it’s explored it will be given a description. 
+  Movement through the map will be 1 square at a time, unless there is some shortcut.
+
+  Could Randomize Locations fairly easily.
+
+Day System:
+Energy system(Exploring -2, interactions vary in energy cost, ways to increase energy(food, medicine))
+Best way to regain is to go to sleep, which will go to the next day. 
+Certain things will move you to the next day(knocked out, other effects)
+
+Location Objects:
+	Name:
+	Description:
+	General Interactions:
+
+Random Events:
+  Good and Bad:
+  Some are as simple as gaining an item
+  Other have interactions, and are like rooms.
+
+  General Event Concepts:
+    Gaining an item.
+    Losing a day.
+    Losing energy.
+    Given a tough choice(Run, fight)
+
+
+
+Item Objects:
+	Name:
+	Description(with hint usually):
+	Secret Interaction(When used, if in x room, do y)
+	General Use:(Bandages heal, food restores energy/hunger, etc)
+
+
+
+
+New Game:
+  >> Backstory, you get to take one item with you, washed up on an island.
+  >> Fog of war style area exploration.
+    > Each area has a list of interactions
+    > Can use items in area to interact with it( I.E Safe in safe room opens safe.)
+
+
+Game Endings:
+  Dying of starvation
+  Dying of Status effects
+  Dying from a interaction(attack. accident)
+  Escape(Multiple types, flaregun, making a boat,
