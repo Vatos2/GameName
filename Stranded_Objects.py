@@ -9,9 +9,10 @@ class Player:
             self.energy = energy # Player's energy, used for action economy.
             self.maxEnergy = 20 # Not a "Hard" Maximum, sleeping will set your current energy to your "max" energy.
             self.location = location # The current location of the player.
+            self.coord = location.getCoords
 
     def isAlive(self):
-        if health <= 0:
+        if self.health <= 0:
             return False
         else:
             return True
@@ -32,12 +33,16 @@ class Player:
 class Loc:
     # Location object, tracks information about a single location on a map.
 
-    def __init_(self,name,description, interactions,state):
+    def __init__(self,name,description, interactions,state):
                 self.name = name
                 self.desc = description
                 self.interactions = interactions # Probably an array of "general" interactions
                 self.state = state # 0 = Passable, 1 = Permanently Impassable, 2 = Temporarily Impassable
+                self.coords = [-1, -1] # Location on the map.
+                self.explored = 0 # Has the player "Discovered" this.
 
+    def getCoords(self):
+        return self.coords
 class Item:
     #Items
 
