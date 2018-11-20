@@ -26,20 +26,26 @@ class Player:
         self.location = newLoc
 
     def pickup(self,item):
-        self.inventory = self.inventory.append(item)
+        self.inventory.append(item)
         print("You got the ", "<",item.name,">", "!")
 
     def listInventory(self):
-        print(self.inventory)
+        if len(self.inventory) == 0:
+            print("Your inventory is empty!")
+        else:
+            for i in range (0,len(self.inventory)):
+                print(str(i+1)+".",self.inventory[i].name)
+
 
 
 
 class Loc:
     # Location object, tracks information about a single location on a map.
 
-    def __init__(self,name,description, interactions,state):
+    def __init__(self,name,description, vague, interactions,state):
                 self.name = name
-                self.desc = description
+                self.desc = description # A description once it's discovered.
+                self.vague = vague # The description given "at a glance", used in the "check" action.
                 self.interactions = interactions # Probably an array of "general" interactions
                 self.state = state # 0 = Passable, 1 = Permanently Impassable, 2 = Temporarily Impassable
                 self.coords = [-1, -1] # Location on the map.
@@ -131,3 +137,12 @@ class Instance:
                     if self.player.location.isExplored():
                         self.player.location.discover()
                     print("You are now in: ", self.player.location.name)
+
+    def check(self):
+        # Gives a vague description of things in each cardinal direction, eventually it should check if explored.
+        # and if it is explored, give the full desc instead of the vague
+        print("Your current location:",self.player.location.name)
+        print("To the East:",self.map[self.playerx][self.playery+1].vague)
+        print("To the West:", self.map[self.playerx][self.playery - 1].vague)
+        print("To the North:", self.map[self.playerx - 1][self.playery].vague)
+        print("To the South:", self.map[self.playerx + 1][self.playery].vague)

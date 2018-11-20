@@ -43,7 +43,7 @@ def startGame(game):
     machete = SO.Item("Machete", "A bladed tool used for clearing brush.")
     eKit = SO.Item("Electronics Kit", "A tool kit, which could be used to repair electronic equipment.")
     firstAid = SO.Item("First-Aid Kit", "Contains various medical supplies which can be used to heal you.")
-    shovel = SO.Item("Shovel","A shovel, generally used for digging.")
+    shovel = SO.Item("Shovel", "A shovel, generally used for digging.")
     firstItem = input()
     if firstItem == "1":
         player.pickup(eKit)
@@ -55,24 +55,33 @@ def startGame(game):
         player.pickup(firstAid)
     else:
         print("Invalid entry, for your failure you will receive a random item.")
+        player.pickup(shovel)
 
     while True:
         print("What would you like to do?")
-        print("1. Check Surroundings.\n"
-              "2. Move to a different location.\n"
-              "3. View your inventory.\n"
-              "4. Use an item")
+        print("C: Check Surroundings.\n"
+              "M: Move to a different location.\n"
+              "I: View your inventory.\n"
+              "U: Use an item")
         action = input()
-        if action == "1":
-            continue
+        action = action.upper()
+        if action == "C":
+            game.check()
 
-        elif action == "2":
-            continue
+        elif action == "M":
+            print("Where would you like to move?\n"
+                  "N. North\n"
+                  "S. South\n"
+                  "W. West\n"
+                  "E. East\n")
+            direction = input()
+            direction = direction.upper()
+            game.move(direction)
 
-        elif action == "3":
+        elif action == "I":
             player.listInventory()
 
-        elif action == "4":
+        elif action == "U":
             continue
 
 def initialize():
@@ -85,11 +94,16 @@ def initialize():
     #  Temporarily impassable locations should be prefaced with t_
     #  Open locations should be prefaced with n_
     #  Location names should be 4-5 characters, since we want our maps to be alligned
-    i_lav = SO.Loc("Lava Flow", "A red hot stream of lava, there's no getting over this.",[],1)
-    n_bch = SO.Loc("Beach", "A sandy beach with nothing on it",["FISH","SLEEP"],0)
-    n_jng = SO.Loc("Jungle", "A vibrant jungle, full of life.",[],0)
-    n_rad = SO.Loc("Radio Tower", "An abandoned radio tower",[], 0)
-    t_occ = SO.Loc("Ocean", "The ocean, stretches on as far as the eye can see",[],2)
+    i_lav = SO.Loc("Lava Flow", "A red hot stream of lava, there's no getting over this."\
+                   ,"An impassable river of lava" ,[],1)
+    n_bch = SO.Loc("Beach", "A sandy beach with nothing on it",\
+                   "A beach.",["FISH","SLEEP"],0)
+    n_jng = SO.Loc("Jungle", "A vibrant jungle, full of life."\
+                   ,"An exotic treeline.",[],0)
+    n_rad = SO.Loc("Radio Tower", "An abandoned radio tower"\
+                    ,"A dilapitated metal tower.",[], 0)
+    t_occ = SO.Loc("Ocean", "The ocean, stretches on as far as the eye can see"\
+                   ,"A vast ocean.",[],2)
     # >>> MAP BUILDING AND INFORMATION <<<
 
     # Map for testing and dev work.
