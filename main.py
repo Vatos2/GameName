@@ -62,7 +62,8 @@ def startGame(game):
         print("C: Check Surroundings.\n"
               "M: Move to a different location.\n"
               "I: View your inventory.\n"
-              "U: Use an item")
+              "U: Use an item\n"
+              "MC: [DEBUG] Prints the map to console.")
         action = input()
         action = action.upper()
         if action == "C":
@@ -84,6 +85,9 @@ def startGame(game):
         elif action == "U":
             continue
 
+        elif action == "MC":
+            game.showMap(1)
+
 def initialize():
     print("Initializing...")
 
@@ -94,15 +98,15 @@ def initialize():
     #  Temporarily impassable locations should be prefaced with t_
     #  Open locations should be prefaced with n_
     #  Location names should be 4-5 characters, since we want our maps to be alligned
-    i_lav = SO.Loc("Lava Flow", "A red hot stream of lava, there's no getting over this."\
+    i_lav = SO.Loc("Lava Flow","LAVA", "A red hot stream of lava, there's no getting over this."\
                    ,"An impassable river of lava" ,[],1)
-    n_bch = SO.Loc("Beach", "A sandy beach with nothing on it",\
+    n_bch = SO.Loc("Beach","BECH", "A sandy beach with nothing on it",\
                    "A beach.",["FISH","SLEEP"],0)
-    n_jng = SO.Loc("Jungle", "A vibrant jungle, full of life."\
+    n_jng = SO.Loc("Jungle","JUNG", "A vibrant jungle, full of life."\
                    ,"An exotic treeline.",[],0)
-    n_rad = SO.Loc("Radio Tower", "An abandoned radio tower"\
+    n_rad = SO.Loc("Radio Tower","RADT","An abandoned radio tower"\
                     ,"A dilapitated metal tower.",[], 0)
-    t_occ = SO.Loc("Ocean", "The ocean, stretches on as far as the eye can see"\
+    t_occ = SO.Loc("Ocean","OCEN", "The ocean, stretches on as far as the eye can see"\
                    ,"A vast ocean.",[],2)
     # >>> MAP BUILDING AND INFORMATION <<<
 
@@ -131,7 +135,7 @@ def initialize():
                         [lav1, bch1, lav6],
                         [occ1, occ2, occ3]
         ]
-    DemoMap = initMap(DemoMap)
+    DemoMap = initMap(DemoMap) # Assigns coordinates to these locations
 
     IslandMap = [[]]  # Our map will be a 2D array of locations.
 
@@ -149,9 +153,9 @@ def main(): # Main will be our Main Menu
           "\t1. New Game\n"
           "\t2. Exit\n")
     selection = input()
-    if selection == "1": # Input only takes strings.
-        player,map = initialize() # Initialize returns two things, player and map.
-        game = SO.Instance(player, map) # Create the game instance
+    if selection == "1":  # Input only takes strings.
+        player, map = initialize()  # Initialize returns two things, player and map.
+        game = SO.Instance(player, map)  # Create the game instance
         startGame(game)
         # By splitting up our main and our game, we can send the player back to the menu using main()
 

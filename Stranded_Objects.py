@@ -1,3 +1,9 @@
+import numpy as np
+
+
+def printArray(args):
+    print("\t".join(args))
+
 
 class Player:
     # The Player Object
@@ -42,14 +48,15 @@ class Player:
 class Loc:
     # Location object, tracks information about a single location on a map.
 
-    def __init__(self,name,description, vague, interactions,state):
+    def __init__(self,name,cnct,description, vague, interactions,state):
                 self.name = name
                 self.desc = description # A description once it's discovered.
                 self.vague = vague # The description given "at a glance", used in the "check" action.
                 self.interactions = interactions # Probably an array of "general" interactions
                 self.state = state # 0 = Passable, 1 = Permanently Impassable, 2 = Temporarily Impassable
-                self.coords = [-1, -1] # Location on the map.
+                self.coords = [-1, -1] # Location on the map, X and Y
                 self.explored = 0 # Has the player "Discovered" this 0 for no 1 for yes.
+                self.cnct = cnct  # 4 Letter Representation of the location.
 
     def getCoords(self):
         return self.coords
@@ -83,66 +90,78 @@ class Item:
         self.name = name
         self.desc = description
 
+
+
 class Instance:
-    # The "Game" Object, will allow us to pass our initialization into the main game function.
-    # All we need to pass to the instance are the player, and the map since those two objects contain all of our objs
-    # If you're unsure where to put any functions, it's probably safe to assume you can put it here.
+        # The "Game" Object, will allow us to pass our initialization into the main game function.
+        # All we need to pass to the instance are the player, and the map since those two objects contain all of our objs
+        # If you're unsure where to put any functions, it's probably safe to assume you can put it here.
 
-    def __init__(self, player, map):
-        self.player = player
-        self.map = map
-        self.playerx = self.player.location.coords[0]
-        self.playery = self.player.location.coords[1]
+        def __init__(self, player, map):
+            self.player = player
+            self.map = map
+            self.playerx = self.player.location.coords[0]
+            self.playery = self.player.location.coords[1]
 
-    def updatePlayerLoc(self,x,y):
-        self.player.setLocation(self.map[x][y])
-        self.playerx = self.player.location.getCoords[0]
-        self.playery = self.player.location.getCoords[1]
+        def updatePlayerLoc(self,y,x):
+            self.player.setLocation(self.map[x][y])
+            self.playerx = self.player.location.coords[0]
+            self.playery = self.player.location.coords[1]
+            print("You move to: ", self.map[self.playerx][self.playery].name)
 
-    def move(self,direction):
-        # For moving the player around, we'll take as input cardinal directions N,W,E,S.
-        # Remember len(map) is y length, len(map[0]) is xlength!
-        direction = direction.upper()
-        if direction == "N":
-            if (self.player.playery + 1 < len(self.map)):
-                if (self.map[self.player.playerx][self.player.playery + 1]).isPassable():
-                    self.updatePlayerLoc(self.player.playerx,self.player.playery + 1)
-                    print("You move north.")
-                    if self.player.location.isExplored():
-                        self.player.location.discover()
+        def move(self,direction):
+            # For moving the player around, we'll take as input cardinal directions N,W,E,S.
+            # Remember len(map) is y length, len(map[0]) is xlength!
+            direction = direction.upper()
+            if direction == "N":
+                if (self.playery + 1 < len(self.map)):
+                    if (self.map[self.playerx - 1][self.playery]).isPassable():
+                        self.updatePlayerLoc(self.playerx,self.playery - 1)
+                        print("You move from:", self.map[self.playerx][self.playery].name, " to ",
+                              self.map[self.playerx + 1][self.playery].name)
+                        if self.player.location.isExplored():
+                            self.player.location.discover()
 
 
-        elif direction == "S":
-            if (self.player.playery - 1 > 0):
-                if (self.map[self.player.playerx][self.player.playery - 1]).isPassable():
-                    self.updatePlayerLoc(self.player.playerx,self.player.playery - 1)
-                    print("You move south.")
-                    if self.player.location.isExplored():
-                        self.player.location.discover()
-                    print("You are now in: ", self.player.location.name)
-        elif direction == "W":
-            if (self.player.playerx - 1 > 0):
-                if (self.map[self.player.playerx - 1][self.player.playery]).isPassable():
-                    self.updatePlayerLoc(self.player.playerx-1,self.player.playery)
-                    print("You move west.")
-                    if self.player.location.isExplored():
-                        self.player.location.discover()
-                    print("You are now in: ", self.player.location.name)
+            elif direction == "S":
+                if (self.playery - 1 > 0):
+                    if (self.map[self.playerx][self.playery + 1]).isPassable():
+                        self.updatePlayerLoc(self.playerx,self.playery - 1)
+                        print("You move south.")
+                        if self.player.location.isExplored():
+                            self.player.location.discover()
+                        print("You are now in: ", self.player.location.name)
+            elif direction == "W":
+                if (self.playerx - 1 > 0):
+                    if (self.map[self.playerx - 1][self.playery]).isPassable():
+                        self.updatePlayerLoc(self.playerx-1,self.playery)
+                        print("You move west.")
+                        if self.player.location.isExplored():
+                            self.player.location.discover()
+                        print("You are now in: ", self.player.location.name)
 
-        elif direction == "E":
-            if (self.player.playerx + 1 < len(self.map[0])):
-                if (self.map[self.player.playerx + 1][self.player.playery]).isPassable():
-                    self.updatePlayerLoc(self.player.playerx + 1, self.player.playery)
-                    print("You move east.")
-                    if self.player.location.isExplored():
-                        self.player.location.discover()
-                    print("You are now in: ", self.player.location.name)
+            elif direction == "E":
+                if (self.playerx + 1 < len(self.map[0])):
+                    if (self.map[self.playerx + 1][self.playery]).isPassable():
+                        self.updatePlayerLoc(self.playerx + 1, self.playery)
+                        print("You move east.")
+                        if self.player.location.isExplored():
+                            self.player.location.discover()
+                        print("You are now in: ", self.player.location.name)
 
-    def check(self):
-        # Gives a vague description of things in each cardinal direction, eventually it should check if explored.
-        # and if it is explored, give the full desc instead of the vague
-        print("Your current location:",self.player.location.name)
-        print("To the East:",self.map[self.playerx][self.playery+1].vague)
-        print("To the West:", self.map[self.playerx][self.playery - 1].vague)
-        print("To the North:", self.map[self.playerx - 1][self.playery].vague)
-        print("To the South:", self.map[self.playerx + 1][self.playery].vague)
+        def check(self):
+            # Gives a vague description of things in each cardinal direction, eventually it should check if explored.
+            # and if it is explored, give the full desc instead of the vague
+            print("Your current location:",self.map[self.playerx][self.playery].name)
+            print("To the East:",self.map[self.playerx][self.playery+1].vague)
+            print("To the West:", self.map[self.playerx][self.playery - 1].vague)
+            print("To the North:", self.map[self.playerx - 1][self.playery].vague)
+            print("To the South:", self.map[self.playerx + 1][self.playery].vague)
+
+
+        def showMap(self,setting):
+            # Prints the map to console, setting determines how much info is given FULL shows even unexplored areas,
+            # VARB shows only the explored areas
+            for row in self.map:
+                printArray(x.cnct for x in row)
+
