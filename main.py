@@ -59,11 +59,13 @@ def startGame(game):
 
     while True:
         print("What would you like to do?")
+        game.where()
         print("C: Check Surroundings.\n"
               "M: Move to a different location.\n"
               "I: View your inventory.\n"
               "U: Use an item\n"
-              "MC: [DEBUG] Prints the map to console.")
+              "MC: [DEBUG] Prints the map to console.\n"
+              "W: [Debug] Tells you what is in a location(y,x)")
         action = input()
         action = action.upper()
         if action == "C":
@@ -87,6 +89,10 @@ def startGame(game):
 
         elif action == "MC":
             game.showMap(1)
+        elif action == "W":
+            y = int(input("Input Y coordinate:"))
+            x = int(input("Input X coordinate:"))
+            game.getLoc(y,x)
 
 def initialize():
     print("Initializing...")
@@ -128,20 +134,24 @@ def initialize():
     bch1 = n_bch
     jng1 = n_jng
     rad1 = n_rad
+
+
+                    #   [[0]   [[1]   [[2]
     DemoMap = \
         [
-                        [lav3, rad1, lav4],
-                        [lav2, jng1, lav5],
-                        [lav1, bch1, lav6],
-                        [occ1, occ2, occ3]
+                        [lav3, rad1, lav4],  # 0
+                        [lav2, jng1, lav5],  # 1
+                        [lav1, bch1, lav6],  # 2
+                        [occ1, occ2, occ3]   # 3
         ]
+
     DemoMap = initMap(DemoMap) # Assigns coordinates to these locations
 
     IslandMap = [[]]  # Our map will be a 2D array of locations.
 
     IslandMap = DemoMap # For development I use the demomap for testing, will be changed once we have real maps
     print("Map initialized at ylen: ", len(IslandMap), " xlen: ", len(IslandMap[0]))
-    player = SO.Player([],0,100,20,n_bch)  # Make the player character.
+    player = SO.Player([],0,100,20,bch1)  # Make the player character.
 
     return player, IslandMap  # What we are going to pass to the game function.
 
