@@ -11,7 +11,10 @@ DEV NOTES:
 I encourage you to look at the game concepts document, and reach out to us on discord if you have any questions.
 
 STATUS UPDATES:
-Finished framework for movement system, working on implementing a loop for in game actions.
+Movement is finished and relatively polished.
+A rudimentary event system has been added, an example of this exists in the demo.
+A win case for the demo has been added, use the electric kit while in the radio tower to call for help.
+To Do: Make an example of actions you can take in locations(fishing on the beach would be a good start).
 
 """
 
@@ -40,7 +43,7 @@ def startGame(game):
           "2. A machete \n"
           "3. A first aid kit. \n")
 
-    machete = SO.Item("Machete", "A bladed tool used for clearing brush.")
+    machete = SO.Item("Machete", "A bladed tool used for clearing brush, or self defense.")
     eKit = SO.Item("Electronics Kit", "A tool kit, which could be used to repair electronic equipment.")
     firstAid = SO.Item("First-Aid Kit", "Contains various medical supplies which can be used to heal you.")
     shovel = SO.Item("Shovel", "A shovel, generally used for digging.")
@@ -54,18 +57,19 @@ def startGame(game):
     elif firstItem == "3":
         player.pickup(firstAid)
     else:
-        print("Invalid entry, for your failure you will receive a random item.")
+        print("Invalid entry, have a shovel.")
         player.pickup(shovel)
 
     while True:
         print("What would you like to do?")
         game.where()
-        print("C: Check Surroundings.\n"
+        print("\nC: Check Surroundings.\n"
               "M: Move to a different location.\n"
               "I: View your inventory.\n"
               "U: Use an item\n"
               "MC: [DEBUG] Prints the map to console.\n"
-              "W: [Debug] Tells you what is in a location(y,x)")
+              "W: [Debug] Tells you what is in a location(y,x)\n"
+              "MM: Returns you to the main menu.")
         action = input()
         action = action.upper()
         if action == "C":
@@ -85,7 +89,11 @@ def startGame(game):
             player.listInventory()
 
         elif action == "U":
-            continue
+            print("Choose an item:")
+            player.listInventory()
+            choice = int(input())
+            item = player.inventory[choice-1]
+            game.useitem(item)
 
         elif action == "MC":
             game.showMap(1)
@@ -93,6 +101,9 @@ def startGame(game):
             y = int(input("Input Y coordinate:"))
             x = int(input("Input X coordinate:"))
             game.getLoc(y,x)
+
+        elif action == "MM":
+            main()
 
 def initialize():
     print("Initializing...")

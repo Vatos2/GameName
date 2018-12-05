@@ -1,6 +1,7 @@
-import numpy as np
-
-
+import time
+import random
+import sys
+random.seed(time.time())
 def printArray(args):
     print("\t".join(args))
 
@@ -42,8 +43,14 @@ class Player:
             for i in range (0,len(self.inventory)):
                 print(str(i+1)+".",self.inventory[i].name)
 
-
-
+    def checkforitem(self,itemname): # For use in item dependant event outcomes
+        if len(self.inventory) == 0:
+            return False
+        else:
+            for i in range(0, len(self.inventory)):
+                if self.inventory[i].name == itemname:
+                    return True
+            return False
 
 class Loc:
     # Location object, tracks information about a single location on a map.
@@ -110,6 +117,9 @@ class Instance:
             self.playery = self.player.location.coords[0]
             self.playerx = self.player.location.coords[1]
             print("You move to: ", self.map[self.playery][self.playerx].name)
+            if not self.player.location.isExplored():
+                self.player.location.discover()
+                self.eventcheck()
 
         def move(self,direction):
             # For moving the player around, we'll take as input cardinal directions N,W,E,S.
@@ -119,36 +129,24 @@ class Instance:
                 if (self.playery - 1 < len(self.map)):
                     if (self.map[self.playery - 1][self.playerx]).isPassable():
                         self.updatePlayerLoc(self.playery - 1,self.playerx)
-                        print("You move north.")
-                        if self.player.location.isExplored():
-                            self.player.location.discover()
+
 
 
             elif direction == "S":
                 if (self.playery + 1 > 0):
                     if (self.map[self.playery + 1][self.playerx]).isPassable():
                         self.updatePlayerLoc(self.playery + 1,self.playerx)
-                        print("You move south.")
-                        if self.player.location.isExplored():
-                            self.player.location.discover()
-                        print("You are now in: ", self.player.location.name)
+
             elif direction == "W":
                 if (self.playerx - 1 > 0):
                     if (self.map[self.playery][self.playerx-1]).isPassable():
                         self.updatePlayerLoc(self.playery,self.playerx-1)
-                        print("You move west.")
-                        if self.player.location.isExplored():
-                            self.player.location.discover()
-                        print("You are now in: ", self.player.location.name)
+
 
             elif direction == "E":
                 if (self.playerx + 1 < len(self.map[0])):
                     if (self.map[self.playery][self.playerx+1]).isPassable():
                         self.updatePlayerLoc(self.playery, self.playerx+1)
-                        print("You move east.")
-                        if self.player.location.isExplored():
-                            self.player.location.discover()
-                        print("You are now in: ", self.player.location.name)
 
         def check(self):
             # Gives a vague description of things in each cardinal direction, eventually it should check if explored.
@@ -160,7 +158,7 @@ class Instance:
                 print("To the East:",self.map[self.playery][self.playerx + 1].vague)
                 print("To the West:", self.map[self.playery][self.playerx - 1].vague)
 
-            except:
+            except IndexError:
                 print("You've perceived something outside of the map! This shouldn't happen!")
 
         def showMap(self,setting):
@@ -184,3 +182,53 @@ class Instance:
             except:
                 print("Y: ", y, "X: ", x)
                 print("Location out of bounds!")
+
+
+
+        def eventcheck(self):
+            if self.player.location.name == "Jungle":
+                self.event("wolfattack",100)
+
+        def event(self,eventname,percentchance):  # Not a great way to do this probably, but oh well!
+            chance =random.randint(0,100)
+            if chance <= percentchance:
+                if eventname == "wolfattack":
+                    print("\nOut of the trees comes a single wolf, it attacks you. \nWhat do you do?")
+
+                    print("F. Fight it off\n"
+                          "R. Run away.")
+                    choice = input()
+                    choice = choice.upper()
+
+                    if choice == 'F':
+                        if self.player.checkforitem("Machete"):
+                            print("Using your Machete, you easily kill the wolf.")
+                            wolfmeat = Item("Wolf Meat","Can be cooked, and eaten.")
+                            self.player.pickup(wolfmeat)
+                        else:
+                            fightchance = random.randint(0,100)
+                            if fightchance <= 50:
+                                print("You fail to fight off the wolf with your bare hands, and are killed.")
+                                self.isover()
+                            elif fightchance > 50:
+                                print("You manage to scare the wolf off with your bare hands, but are bitten multiple\
+                                 times in the process.")
+                                self.player.modHealth(-5)
+
+                    else:
+                        print("You run away, losing 2 energy.")
+                        self.player.modEnergy(-2)
+                # If the event doesn't trigger,we just move on.
+
+
+        def isover(self):
+            sys.exit("Thanks for playing!")
+
+        def useitem(self,item):
+            if item.name == "Electronics Kit":
+                if self.player.location.name == "Radio Tower":
+                    print("Using the Electronics Kit you've fixed the radio tower, and have called for help.",
+                          "A few days later, you are rescued. You've escaped the island, congratulations!")
+                    self.isover()
+            else:
+                print("That item doesn't do anything here!")
