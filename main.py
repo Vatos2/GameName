@@ -11,11 +11,7 @@ DEV NOTES:
 I encourage you to look at the game concepts document, and reach out to us on discord if you have any questions.
 
 STATUS UPDATES:
-Movement is finished and relatively polished.
-A rudimentary event system has been added, an example of this exists in the demo.
-A win case for the demo has been added, use the electric kit while in the radio tower to call for help.
-To Do: Make an example of actions you can take in locations(fishing on the beach would be a good start).
-
+All done!
 """
 
 import Stranded_Objects as SO
@@ -28,12 +24,12 @@ def initMap(myMap):
        return myMap
 def emptyMap(x,y):
     myMap = []
-    myMap = [["NULL" for i in range(x)] for j in range(y)]
+    myMap = [["NULL" for i in range(x)] for j in range(y)]  # populate with null tiles
     return myMap
 
 def startGame(game):
-    player = game.player # for easier accessing
-    map = game.map # for easier accessing
+    player = game.player  # for easier accessing
+    map = game.map  # for easier accessing
 
     print("Five days ago, your cruise ship was caught in a terrible storm and torn apart.\n"
           "you managed to make it to a life boat alone, and you have no clue of the fate of your fellow passengers.\n"
@@ -61,12 +57,15 @@ def startGame(game):
         player.pickup(shovel)
 
     while True:
-        print("What would you like to do?")
+        if game.player.exhausted():
+            game.passout()
+        print("\nWhat would you like to do?\n", "Current Energy: ", player.energy,"/", player.maxEnergy,"e", sep="")
         game.where()
         print("\nC: Check Surroundings.\n"
-              "M: Move to a different location.\n"
+              "M: Move to a different location.(1e)\n"
               "I: View your inventory.\n"
               "U: Use an item\n"
+              "L: Interact with this Location(2e)\n"
               "MC: [DEBUG] Prints the map to console.\n"
               "W: [Debug] Tells you what is in a location(y,x)\n"
               "MM: Returns you to the main menu.")
@@ -95,6 +94,10 @@ def startGame(game):
             item = player.inventory[choice-1]
             game.useitem(item)
 
+        elif action == "L":
+            game.useLocation()
+
+
         elif action == "MC":
             game.showMap(1)
         elif action == "W":
@@ -118,13 +121,15 @@ def initialize():
     i_lav = SO.Loc("Lava Flow","LAVA", "A red hot stream of lava, there's no getting over this."\
                    ,"An impassable river of lava" ,[],1)
     n_bch = SO.Loc("Beach","BECH", "A sandy beach with nothing on it",\
-                   "A beach.",["FISH","SLEEP"],0)
+                   "A beach.",["FISH"],0)
     n_jng = SO.Loc("Jungle","JUNG", "A vibrant jungle, full of life."\
                    ,"An exotic treeline.",[],0)
     n_rad = SO.Loc("Radio Tower","RADT","An abandoned radio tower"\
                     ,"A dilapitated metal tower.",[], 0)
     t_occ = SO.Loc("Ocean","OCEN", "The ocean, stretches on as far as the eye can see"\
                    ,"A vast ocean.",[],2)
+    n_cmp = SO.Loc("Beach", "CAMP", "A sandy beach where your camp lies.", # Special beach for our camp
+                   "A beach.", ["FISH", "SLEEP", "COOK"], 0)
     # >>> MAP BUILDING AND INFORMATION <<<
 
     # Map for testing and dev work.
@@ -142,7 +147,7 @@ def initialize():
     # We need 6 Lava tiles, 3 Ocean Tiles, 1 Beach, and 1 Jungle tile, 1 Radio Tower.
     lav1=lav2=lav3=lav4=lav5=lav6 = i_lav
     occ1=occ2=occ3 = t_occ
-    bch1 = n_bch
+    bch1 = n_cmp
     jng1 = n_jng
     rad1 = n_rad
 

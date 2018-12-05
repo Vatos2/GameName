@@ -5,6 +5,8 @@ random.seed(time.time())
 def printArray(args):
     print("\t".join(args))
 
+def getRandom():
+    return random.randint(0,100)
 
 class Player:
     # The Player Object
@@ -32,9 +34,20 @@ class Player:
     def setLocation(self,newLoc):
         self.location = newLoc
 
+    def exhausted(self): #returns true if you are out of energy.
+        if self.energy <= 0:
+            return True
+        return False
+
     def pickup(self,item):
         self.inventory.append(item)
         print("You got the ", "<",item.name,">", "!")
+    def remove(self,itemname):
+        for item in self.inventory:
+            if item.name == itemname:
+                self.inventory.remove(item)
+                print("You lost the ", "<", item.name, ">", "!")
+
 
     def listInventory(self):
         if len(self.inventory) == 0:
@@ -52,6 +65,8 @@ class Player:
                     return True
             return False
 
+
+
 class Loc:
     # Location object, tracks information about a single location on a map.
     # NOTES ON COORDINATE TRACKING: FOR map[x][y], X IS ACTUALLY THE Y COORDINATE, AND X IS THE X IN PYTHON.
@@ -65,7 +80,7 @@ class Loc:
                 self.state = state # 0 = Passable, 1 = Permanently Impassable, 2 = Temporarily Impassable
                 self.coords = [-1, -1] # Location on the map, y and X
                 self.explored = 0 # Has the player "Discovered" this 0 for no 1 for yes.
-                self.cnct = cnct  # 4 Letter Representation of the location.
+                self.cnct = cnct  # 4 Letter Representation of the location, for maps.
 
     def getCoords(self):
         return self.coords
@@ -129,24 +144,27 @@ class Instance:
                 if (self.playery - 1 < len(self.map)):
                     if (self.map[self.playery - 1][self.playerx]).isPassable():
                         self.updatePlayerLoc(self.playery - 1,self.playerx)
-
+                        self.player.modEnergy(-1)
 
 
             elif direction == "S":
                 if (self.playery + 1 > 0):
                     if (self.map[self.playery + 1][self.playerx]).isPassable():
                         self.updatePlayerLoc(self.playery + 1,self.playerx)
-
+                        self.player.modEnergy(-1)
             elif direction == "W":
                 if (self.playerx - 1 > 0):
                     if (self.map[self.playery][self.playerx-1]).isPassable():
                         self.updatePlayerLoc(self.playery,self.playerx-1)
+                        self.player.modEnergy(-1)
 
 
             elif direction == "E":
                 if (self.playerx + 1 < len(self.map[0])):
                     if (self.map[self.playery][self.playerx+1]).isPassable():
                         self.updatePlayerLoc(self.playery, self.playerx+1)
+                        self.player.modEnergy(-1)
+
 
         def check(self):
             # Gives a vague description of things in each cardinal direction, eventually it should check if explored.
@@ -206,18 +224,51 @@ class Instance:
                             wolfmeat = Item("Wolf Meat","Can be cooked, and eaten.")
                             self.player.pickup(wolfmeat)
                         else:
-                            fightchance = random.randint(0,100)
-                            if fightchance <= 50:
+                            roll = getRandom()
+                            if roll <= 50:
                                 print("You fail to fight off the wolf with your bare hands, and are killed.")
                                 self.isover()
-                            elif fightchance > 50:
+                            elif roll > 50:
                                 print("You manage to scare the wolf off with your bare hands, but are bitten multiple\
                                  times in the process.")
-                                self.player.modHealth(-5)
+                                self.player.modHealth(-50)
 
                     else:
                         print("You run away, losing 2 energy.")
                         self.player.modEnergy(-2)
+
+                elif eventname == "passout":
+                    print("You've pushed yourself past your limits, and have passed out due to lack of energy.")
+                    roll = getRandom()
+                    if roll <= 50:
+                        print("You are eaten alive in your sleep, that's rough!")
+                        self.isover()
+                    elif roll > 50:
+                        print("You manage to make it back to the beach just in time to fall asleep safely.")
+                        self.player.energy = self.player.maxEnergy/2
+
+                elif eventname == "SLEEP":
+                    print("You sleep until the next day.")
+                    self.player.energy = self.player.maxEnergy
+
+                elif eventname == "FISH":
+                    roll = getRandom()
+                    if roll <=25:
+                        print("You fail to catch anything, and just tire yourself out.")
+                        self.player.modEnergy(-1)
+                    else:
+                        print("You catch a fish with your hands.")
+                        rwfish = Item("Raw Fish", "A dead fish, could be cooked.")
+                        self.player.pickup(rwfish)
+
+                elif eventname == "COOK":
+                        for item in self.player.inventory:
+                            if item.name == "Raw Fish":
+                                ckfish = Item("Cooked Fish", "A delicious cooked fish.")
+                                self.player.remove("Raw Fish")
+                                self.player.pickup(ckfish)
+
+
                 # If the event doesn't trigger,we just move on.
 
 
@@ -230,5 +281,31 @@ class Instance:
                     print("Using the Electronics Kit you've fixed the radio tower, and have called for help.",
                           "A few days later, you are rescued. You've escaped the island, congratulations!")
                     self.isover()
+
+            elif item.name == "Raw Fish":
+                print("You ate the raw fish, it wasn't very good.(+5e)")
+                self.player.modEnergy(5)
+            elif item.name == "Cooked Fish":
+                print("You ate the cooked fish, it was great.(+12e)")
+                self.player.modEnergy(12)
             else:
                 print("That item doesn't do anything here!")
+
+        def passout(self):
+            print("You pass out from exhaustion!")
+            self.event("passout", 100)
+
+        def useLocation(self):
+            location = self.player.location
+            if len(self.player.location.interactions) <= 0:
+                print("This location currently has no interactions.")
+            else:
+                print("Enter the number of the interaction you'd like to perform:")
+                i = 0
+                for option in location.interactions:
+                    print(i+1, ".", option)
+                    i+=1
+                choice = int(input())
+                selection = location.interactions[choice-1]
+                self.player.modEnergy(-1)
+                self.event(selection, 100)
